@@ -1,0 +1,48 @@
+kind: blueprint
+name: "Lambda + CloudFront (Pulumi)"
+description: "Serverless Lambda function behind CloudFront with optional custom domain. Pulumi TypeScript stack triggered via GitHub Actions workflow_dispatch."
+category: compute
+icon: bi-lightning
+
+deploy:
+  type: pulumi
+  path: ./
+  pipeline: github-actions
+  entry: deploy.yml
+  branch: main
+  variables:
+    PULUMI_STACK: "gabaltech/{service_name}-{environment}"
+
+parameters:
+  - name: service_name
+    label: Service Name
+    type: string
+    required: true
+  - name: environment
+    label: Environment
+    type: select
+    required: true
+    options: [{ value: dev, label: Dev }, { value: prod, label: Prod }]
+    default: dev
+  - name: memory_size
+    label: Memory (MB)
+    type: select
+    options: [128, 256, 512, 1024]
+    default: 256
+  - name: timeout
+    label: Timeout (s)
+    type: number
+    default: 30
+  - name: custom_domain
+    label: Custom Domain
+    type: string
+    hint: "Leave blank to use CloudFront URL"
+
+requires:
+  - kind: secret
+    name: PULUMI_ACCESS_TOKEN
+    description: Pulumi Cloud access token
+  - kind: secret
+    name: AWS_ACCESS_KEY_ID
+  - kind: secret
+    name: AWS_SECRET_ACCESS_KEY
