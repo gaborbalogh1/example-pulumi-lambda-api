@@ -1,0 +1,29 @@
+name: Deploy Lambda
+on:
+  workflow_dispatch:
+    inputs:
+      environment: { type: choice, options: [dev, prod], default: dev }
+      service_name: { type: string, required: true }
+      memory_size: { type: string, default: "256" }
+      timeout: { type: string, default: "30" }
+jobs:
+  pulumi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm ci
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+      - uses: pulumi/actions@v5
+        with:
+          command: up
+          stack-name: gabaltech/${{ inputs.service_name }}-${{ inputs.environment }}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          IDP_SERVICE_NAME: ${{ inputs.service_name }}
+          IDP_ENVIRONMENT: ${{ inputs.environment }}
