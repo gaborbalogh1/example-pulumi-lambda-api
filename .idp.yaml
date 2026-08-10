@@ -11,7 +11,7 @@ deploy:
   entry: deploy.yml
   branch: main
   variables:
-    PULUMI_STACK: "gabaltech/{service_name}-{environment}"
+    PULUMI_STACK: "{service_name}-{environment}"
 
 parameters:
   - name: service_name
@@ -36,7 +36,11 @@ parameters:
   - name: custom_domain
     label: Custom Domain
     type: string
-    hint: "Leave blank to use CloudFront URL"
+    hint: "Leave blank to use the CloudFront URL. If set, hosted_zone_name is required."
+  - name: hosted_zone_name
+    label: Hosted Zone Name
+    type: string
+    hint: "Required if Custom Domain is set. The existing Route53 public hosted zone the domain's validation/alias records go into -- e.g. for app.example.co.uk this is usually example.co.uk, not co.uk. Not inferred automatically since that inference is ambiguous for domains like *.co.uk."
 
 requires:
   - kind: secret

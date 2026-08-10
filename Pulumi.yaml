@@ -1,0 +1,3 @@
+name: example-pulumi-lambda-api
+runtime: nodejs
+description: Lambda behind CloudFront, with an optional custom domain (ACM + Route53). Pulumi TypeScript example.
